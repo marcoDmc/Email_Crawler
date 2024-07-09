@@ -60,7 +60,7 @@ def login():
 
         password = input("digit your password:")
         while not password:
-            print("a senha não pode ficar vazia")
+            print("the password cannot be empty")
             password = input("digit your password again:")
         else:
             if password_input:
