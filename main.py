@@ -12,6 +12,10 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 from services.validateEmail import is_valid_gmail
 from services.createFolder import move_file_to_directory
+from services.verifyFileExist import verifyFileExist
+import time
+import os
+from pathlib import Path
 
 load_dotenv()
 
@@ -41,11 +45,12 @@ def login():
         email_input = WebDriverWait(driver, 20).until(
             EC.visibility_of_element_located((By.TAG_NAME, 'input'))
         )
-        email = input("digit your email:")
-        while not is_valid_gmail(email):
-            print("invalid email")
-            print("digit a email valid please")
-            email = input("digit your email:")
+        email = input("digit your email:\n")
+        substring = "gmail"
+        while not is_valid_gmail(email) or not substring in email:
+            print("invalid email\n")
+            print("digit a email valid please\n")
+            email = input("digit your email:\n")
         else:
             email_input.send_keys(email)
 
@@ -58,10 +63,10 @@ def login():
             EC.visibility_of_element_located((By.XPATH, '//*[@id="password"]/div[1]/div/div[1]/input'))
         )
 
-        password = input("digit your password:")
+        password = input("digit your password:\n")
         while not password:
-            print("the password cannot be empty")
-            password = input("digit your password again:")
+            print("the password cannot be empty\n")
+            password = input("digit your password again:\n")
         else:
             if password_input:
                 password_input.send_keys(password)
@@ -76,7 +81,7 @@ def login():
         )
 
     except Exception as e:
-        print(f"Error during login: {str(e)}")
+        print(f"Error during login:\n {str(e)}")
         print(driver.page_source)
 
 
@@ -105,7 +110,7 @@ def extract_all_emails_text():
                 })
 
             except Exception as e:
-                print(f"Erro ao extrair texto do email: {str(e)}")
+                print(f"Erro ao extrair texto do email:\n {str(e)}")
 
         if len(emails_data) > 0:
 
@@ -141,11 +146,21 @@ def extract_all_emails_text():
                         pass
                 adjusted_width = (max_length + 2) * 1.2
                 ws.column_dimensions[column].width = adjusted_width
+            
+                filename= "emails_formatted.xlsx"
+                directory = "./data"
 
-            wb.save("emails_formatted.xlsx")
-            print("Arquivo Excel 'emails_formatted.xlsx' criado com sucesso.")
-            time.sleep(10)
-            move_file_to_directory("data", "./emails_formatted.xlsx")
+                file_path = Path(directory) / filename
+
+                if file_path.is_file():
+                    os.unlink(file_path)
+
+                time.sleep(10)
+                wb.save("emails_formatted.xlsx")
+                print("Arquivo Excel 'emails_formatted.xlsx' criado com sucesso.")
+                time.sleep(10)
+                move_file_to_directory("data", "./emails_formatted.xlsx")
+
 
     except Exception as e:
         print(f"Erro ao tentar extrair textos dos emails: {str(e)}")
